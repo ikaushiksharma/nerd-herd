@@ -16,5 +16,5 @@ export const ActionTooltip = ({ label, children, side, align }: ActionTooltipPro
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  ); 
+  );
 };
