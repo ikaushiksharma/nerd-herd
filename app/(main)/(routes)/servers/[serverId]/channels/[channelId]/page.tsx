@@ -42,3 +42,4 @@ const ChannelIdPage = async ({ params }: ChannelIdPageProps) => {
     </div>
   );
 };
+export default ChannelIdPage;
