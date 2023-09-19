@@ -1,6 +1,7 @@
 const ServerIdPage = () => {
+  // const server=await 
   return ( 
-    <div>Server ID Page</div>
+    <div>Server Details</div>
    );
 }
  
