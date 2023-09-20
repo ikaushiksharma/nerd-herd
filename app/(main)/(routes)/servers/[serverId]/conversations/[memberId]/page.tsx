@@ -10,10 +10,12 @@ interface MemberIdPageProps {
   params: {
     memberId: string;
     serverId: string;
-  };
+  }
 }
 
-const MemberIdPage = async ({ params }: MemberIdPageProps) => {
+const MemberIdPage = async ({
+  params
+}: MemberIdPageProps) => {
   const profile = await currentProfile();
 
   if (!profile) {
@@ -44,7 +46,7 @@ const MemberIdPage = async ({ params }: MemberIdPageProps) => {
 
   const otherMember = memberOne.profileId === profile.id ? memberTwo : memberOne;
 
-  return (
+  return ( 
     <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
       <ChatHeader
         imageUrl={otherMember.profile.imageUrl}
@@ -53,7 +55,7 @@ const MemberIdPage = async ({ params }: MemberIdPageProps) => {
         type="conversation"
       />
     </div>
-  );
-};
-
+   );
+}
+ 
 export default MemberIdPage;

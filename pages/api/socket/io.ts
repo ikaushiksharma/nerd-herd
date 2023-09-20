@@ -1,8 +1,8 @@
 import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIO } from "socket.io";
+
 import { NextApiResponseServerIo } from "@/types";
-import { defineDmmfProperty } from "@prisma/client/runtime/library";
 
 export const config = {
   api: {
@@ -16,12 +16,13 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
       path: path,
-      //@ts-ignore
+      // @ts-ignore
       addTrailingSlash: false,
     });
     res.socket.server.io = io;
-    res.end();
   }
-};
+
+  res.end();
+}
 
 export default ioHandler;

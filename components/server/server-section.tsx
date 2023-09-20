@@ -13,7 +13,7 @@ interface ServerSectionProps {
   sectionType: "channels" | "members";
   channelType?: ChannelType;
   server?: ServerWithMembersWithProfiles;
-}
+};
 
 export const ServerSection = ({
   label,
@@ -26,7 +26,9 @@ export const ServerSection = ({
 
   return (
     <div className="flex items-center justify-between py-2">
-      <p className="text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400">{label}</p>
+      <p className="text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400">
+        {label}
+      </p>
       {role !== MemberRole.GUEST && sectionType === "channels" && (
         <ActionTooltip label="Create Channel" side="top">
           <button
@@ -48,5 +50,5 @@ export const ServerSection = ({
         </ActionTooltip>
       )}
     </div>
-  );
-};
+  )
+}

@@ -3,7 +3,10 @@ import { NextResponse } from "next/server";
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 
-export async function DELETE(req: Request, { params }: { params: { serverId: string } }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: { serverId: string } }
+) {
   try {
     const profile = await currentProfile();
 
@@ -15,7 +18,7 @@ export async function DELETE(req: Request, { params }: { params: { serverId: str
       where: {
         id: params.serverId,
         profileId: profile.id,
-      },
+      }
     });
 
     return NextResponse.json(server);
@@ -25,7 +28,10 @@ export async function DELETE(req: Request, { params }: { params: { serverId: str
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { serverId: string } }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: { serverId: string } }
+) {
   try {
     const profile = await currentProfile();
     const { name, imageUrl } = await req.json();
@@ -42,7 +48,7 @@ export async function PATCH(req: Request, { params }: { params: { serverId: stri
       data: {
         name,
         imageUrl,
-      },
+      }
     });
 
     return NextResponse.json(server);
