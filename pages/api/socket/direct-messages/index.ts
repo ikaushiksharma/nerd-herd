@@ -1,81 +1,98 @@
-import { NextResponse } from "next/server";
-import { DirectMessage } from "@prisma/client";
+import { NextApiRequest } from "next";
 
-import { currentProfile } from "@/lib/current-profile";
+import { NextApiResponseServerIo } from "@/types";
+import { currentProfilePages } from "@/lib/current-profile-pages";
 import { db } from "@/lib/db";
 
-const MESSAGES_BATCH = 10;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponseServerIo,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-export async function GET(req: Request) {
   try {
-    const profile = await currentProfile();
-    const { searchParams } = new URL(req.url);
-
-    const cursor = searchParams.get("cursor");
-    const conversationId = searchParams.get("conversationId");
-
+    const profile = await currentProfilePages(req);
+    const { content, fileUrl } = req.body;
+    const { conversationId } = req.query;
+    
     if (!profile) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
+      return res.status(401).json({ error: "Unauthorized" });
+    }    
+  
     if (!conversationId) {
-      return new NextResponse("Conversation ID missing", { status: 400 });
+      return res.status(400).json({ error: "Conversation ID missing" });
+    }
+          
+    if (!content) {
+      return res.status(400).json({ error: "Content missing" });
     }
 
-    let messages: DirectMessage[] = [];
 
-    if (cursor) {
-      messages = await db.directMessage.findMany({
-        take: MESSAGES_BATCH,
-        skip: 1,
-        cursor: {
-          id: cursor,
-        },
-        where: {
-          conversationId,
-        },
-        include: {
-          member: {
-            include: {
-              profile: true,
-            },
+    const conversation = await db.conversation.findFirst({
+      where: {
+        id: conversationId as string,
+        OR: [
+          {
+            memberOne: {
+              profileId: profile.id,
+            }
           },
+          {
+            memberTwo: {
+              profileId: profile.id,
+            }
+          }
+        ]
+      },
+      include: {
+        memberOne: {
+          include: {
+            profile: true,
+          }
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    } else {
-      messages = await db.directMessage.findMany({
-        take: MESSAGES_BATCH,
-        where: {
-          conversationId,
-        },
-        include: {
-          member: {
-            include: {
-              profile: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+        memberTwo: {
+          include: {
+            profile: true,
+          }
+        }
+      }
+    })
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
     }
 
-    let nextCursor = null;
+    const member = conversation.memberOne.profileId === profile.id ? conversation.memberOne : conversation.memberTwo
 
-    if (messages.length === MESSAGES_BATCH) {
-      nextCursor = messages[MESSAGES_BATCH - 1].id;
+    if (!member) {
+      return res.status(404).json({ message: "Member not found" });
     }
 
-    return NextResponse.json({
-      items: messages,
-      nextCursor,
+    const message = await db.directMessage.create({
+      data: {
+        content,
+        fileUrl,
+        conversationId: conversationId as string,
+        memberId: member.id,
+      },
+      include: {
+        member: {
+          include: {
+            profile: true,
+          }
+        }
+      }
     });
+
+    const channelKey = `chat:${conversationId}:messages`;
+
+    res?.socket?.server?.io?.emit(channelKey, message);
+
+    return res.status(200).json(message);
   } catch (error) {
-    console.log("[DIRECT_MESSAGES_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log("[DIRECT_MESSAGES_POST]", error);
+    return res.status(500).json({ message: "Internal Error" }); 
   }
 }

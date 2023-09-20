@@ -5,7 +5,10 @@ import { NextApiResponseServerIo } from "@/types";
 import { currentProfilePages } from "@/lib/current-profile-pages";
 import { db } from "@/lib/db";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponseServerIo,
+) {
   if (req.method !== "DELETE" && req.method !== "PATCH") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -30,37 +33,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           {
             memberOne: {
               profileId: profile.id,
-            },
+            }
           },
           {
             memberTwo: {
               profileId: profile.id,
-            },
-          },
-        ],
+            }
+          }
+        ]
       },
       include: {
         memberOne: {
           include: {
             profile: true,
-          },
+          }
         },
         memberTwo: {
           include: {
             profile: true,
-          },
-        },
-      },
-    });
+          }
+        }
+      }
+    })
 
     if (!conversation) {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    const member =
-      conversation.memberOne.profileId === profile.id
-        ? conversation.memberOne
-        : conversation.memberTwo;
+    const member = conversation.memberOne.profileId === profile.id ? conversation.memberOne : conversation.memberTwo;
 
     if (!member) {
       return res.status(404).json({ error: "Member not found" });
@@ -75,10 +75,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         member: {
           include: {
             profile: true,
-          },
-        },
-      },
-    });
+          }
+        }
+      }
+    })
 
     if (!directMessage || directMessage.deleted) {
       return res.status(404).json({ error: "Message not found" });
@@ -107,10 +107,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           member: {
             include: {
               profile: true,
-            },
-          },
-        },
-      });
+            }
+          }
+        }
+      })
     }
 
     if (req.method === "PATCH") {
@@ -129,10 +129,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           member: {
             include: {
               profile: true,
-            },
-          },
-        },
-      });
+            }
+          }
+        }
+      })
     }
 
     const updateKey = `chat:${conversation.id}:messages:update`;
