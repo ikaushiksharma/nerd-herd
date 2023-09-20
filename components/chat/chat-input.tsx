@@ -8,7 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/use-modal-store";
 import { EmojiPicker } from "@/components/emoji-picker";
@@ -24,7 +29,12 @@ const formSchema = z.object({
   content: z.string().min(1),
 });
 
-export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
+export const ChatInput = ({
+  apiUrl,
+  query,
+  name,
+  type,
+}: ChatInputProps) => {
   const { onOpen } = useModal();
   const router = useRouter();
 
@@ -32,7 +42,7 @@ export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: "",
-    },
+    }
   });
 
   const isLoading = form.formState.isSubmitting;
@@ -45,12 +55,13 @@ export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
       });
 
       await axios.post(url, values);
+
       form.reset();
       router.refresh();
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
   return (
     <Form {...form}>
@@ -87,5 +98,5 @@ export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
         />
       </form>
     </Form>
-  );
-};
+  )
+}
